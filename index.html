@@ -112,6 +112,22 @@ header .sp{flex:1}
 .panel .hd h3{margin:0;font-size:18px;font-weight:700;flex:1;min-width:0}
 .panel .hd h3 small{font-size:13px;font-weight:400;color:var(--sub);margin-left:6px}
 .panel .bd{padding:0 16px 18px}
+.search{position:relative;margin:4px 8px 2px}
+.search input{padding-left:38px;border-radius:12px;background:var(--surface);border-color:transparent;height:42px}
+.search input:focus{outline:none;border-color:var(--line2);background:var(--bg)}
+.search .ic{position:absolute;left:12px;top:11px;width:20px;height:20px;color:var(--muted);pointer-events:none}
+.search .clr{position:absolute;right:6px;top:6px;border:none;padding:4px 8px;color:var(--muted);display:none;font-size:18px;line-height:1}
+.sugg{position:absolute;left:0;right:0;top:46px;background:var(--bg);border:1px solid var(--line);border-radius:12px;z-index:20;overflow:hidden;display:none}
+.sugg.on{display:block}
+.sugg .it{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.sugg .it:last-child{border-bottom:none}
+.sugg .it.act,.sugg .it:active{background:var(--surface)}
+.sugg .it b{font-weight:500}
+.sugg .it small{color:var(--sub);font-size:12px;margin-left:auto;white-space:nowrap}
+.sugg .it i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--line2)}
+.sugg .none{padding:12px 14px;color:var(--muted);font-size:14px}
+#map path.flash{fill:none;stroke:var(--accent);stroke-width:3.5;vector-effect:non-scaling-stroke;pointer-events:none;animation:flash .6s ease-in-out 4}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:.1}}
 .gauge{position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:7px;padding:5px 11px 5px 6px;border-radius:999px;background:var(--bg);border:1px solid var(--line);cursor:pointer;z-index:2}
 .gauge svg{width:26px;height:26px;transform:rotate(-90deg)}
 .gauge b{font-size:15px;font-weight:700;letter-spacing:-.3px}
@@ -182,6 +198,12 @@ header .sp{flex:1}
     <button class="iconbtn" id="menuBtn" aria-label="백업 메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></button>
   </header>
   <div class="imgview" id="imgview"><img id="shotImg" alt="색칠한 여행 지도"><p id="shotNote"></p><div class="actions"><button id="shotClose">닫기</button><button class="primary" id="shotSave">이미지 저장</button></div></div>
+  <div class="search" id="searchBox">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="q" type="text" placeholder="지역이나 장소 검색 (예: 해운대, ㄱㄹ)" autocomplete="off" enterkeyhint="search">
+    <button class="clr" id="qClr" aria-label="검색어 지우기">×</button>
+    <div class="sugg" id="sugg"></div>
+  </div>
   <div class="bar" id="bar"></div>
   <div id="mapbox">
     <svg id="map" preserveAspectRatio="xMidYMid meet"></svg>
@@ -587,6 +609,72 @@ function openPlaceEditor(pid) {
   };
   draw();
 }
+
+/* ---------- search ---------- */
+const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+const cho = t => [...t].map(c => { const k = c.charCodeAt(0) - 0xAC00; return k >= 0 && k <= 11171 ? CHO[Math.floor(k / 588)] : c; }).join('');
+const norm = t => String(t || '').replace(/\s+/g, '').toLowerCase();
+const isCho = q => /^[ㄱ-ㅎ]+$/.test(q);
+const strip = n => n.length > 2 ? n.replace(/(특별자치시|특별자치도|특별시|광역시|시|군|구|도)$/, '') : n;
+function searchItems() {
+  const items = [];
+  for (const p of MAP.provinces) items.push({ kind: 'prov', id: p.id, label: p.name, sub: '시·도', keys: [p.name, p.short] });
+  for (const r of MAP.regions) items.push({ kind: 'region', id: r.id, label: r.name, sub: PROV[r.prov].short, keys: [r.name, strip(r.name)], full: [PROV[r.prov].short + r.name, PROV[r.prov].name + r.name] });
+  for (const p of allPlaces()) items.push({ kind: 'place', id: p.rid, cat: p.cat, label: p.name, sub: PROV[REG[p.rid].prov].short + ' ' + REG[p.rid].name, keys: [p.name, p.menu].filter(Boolean) });
+  return items;
+}
+function matchScore(it, q) {
+  let best = -1;
+  for (const k0 of isCho(q) ? it.keys : it.keys.concat(it.full || [])) {
+    const k = norm(k0); const t = isCho(q) ? cho(k) : k;
+    const i = t.indexOf(q); if (i < 0) continue;
+    const sc = (i === 0 ? 3 : 1) + (t === q ? 3 : 0) + (it.kind === 'region' ? 0.6 : it.kind === 'prov' ? 0.8 : 0);
+    best = Math.max(best, sc);
+  }
+  return best;
+}
+let suggList = [], suggAct = -1;
+function renderSugg() {
+  const q = norm($('#q').value); const box = $('#sugg'); $('#qClr').style.display = q ? 'block' : 'none';
+  if (!q) { box.classList.remove('on'); suggList = []; return; }
+  suggList = searchItems().map(it => ({ it, sc: matchScore(it, q) })).filter(x => x.sc >= 0)
+    .sort((a, b) => b.sc - a.sc || a.it.label.length - b.it.label.length).slice(0, 8).map(x => x.it);
+  suggAct = suggList.length ? 0 : -1;
+  box.innerHTML = suggList.length ? suggList.map((it, i) => `<div class="it ${i === suggAct ? 'act' : ''}" data-i="${i}"><i style="${it.kind === 'place' ? 'background:' + CATVAR[it.cat] : it.kind === 'region' && colored(it.id) ? 'background:' + colorOf(it.id) : ''}"></i><b>${esc(it.label)}</b><small>${esc(it.sub)}</small></div>`).join('')
+    : '<div class="none">찾는 지역이나 장소가 없어요</div>';
+  box.querySelectorAll('.it').forEach(el => el.onclick = () => pickSugg(+el.dataset.i));
+  box.classList.add('on');
+}
+function pickSugg(i) {
+  const it = suggList[i]; if (!it) return;
+  $('#sugg').classList.remove('on'); $('#q').value = ''; $('#qClr').style.display = 'none'; $('#q').blur();
+  if (it.kind === 'prov') focusProvince(it.id); else focusRegion(it.id);
+}
+function flashPath(d) {
+  for (const old of gDots.parentNode.querySelectorAll('path.flash')) old.remove();
+  const el = mk('path', { d, class: 'flash' }, svg); setTimeout(() => el.remove(), 2600);
+}
+function enterProvince(pid) {
+  closeSheet(); view.prov = pid; selected = null; const fb = fitBox(PROV[pid].b); fitW = fb.w;
+  renderLabels(); paint(); renderBar(); renderTab(); setHint(); return fb;
+}
+function focusProvince(pid) { const fb = enterProvince(pid); animateTo(fb); flashPath(PROV[pid].d); }
+function focusRegion(id) {
+  const r = REG[id]; enterProvince(r.prov);
+  let [x0, y0, x1, y1] = r.b; const w = Math.max(x1 - x0, 40), h = Math.max(y1 - y0, 40); const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  animateTo(fitBox([cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], 0.9), 500);
+  setTimeout(() => flashPath(r.d), 450);
+}
+$('#q').addEventListener('input', renderSugg);
+$('#q').addEventListener('focus', renderSugg);
+$('#q').addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!suggList.length) return; suggAct = (suggAct + (e.key === 'ArrowDown' ? 1 : -1) + suggList.length) % suggList.length;
+    $('#sugg').querySelectorAll('.it').forEach((el, i) => el.classList.toggle('act', i === suggAct)); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (suggAct >= 0) pickSugg(suggAct); }
+  else if (e.key === 'Escape') { $('#sugg').classList.remove('on'); }
+});
+$('#qClr').onclick = () => { $('#q').value = ''; renderSugg(); $('#q').focus(); };
+document.addEventListener('pointerdown', e => { if (!$('#searchBox').contains(e.target)) $('#sugg').classList.remove('on'); });
 
 /* ---------- plain download (outside claude.ai) ---------- */
 function plainDownload(name, data, type) {
