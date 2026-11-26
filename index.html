@@ -14,14 +14,14 @@
 :root{
   --bg:#ffffff; --surface:#f7f6f3; --line:#ebe9e4; --line2:#d6d3cb; --text:#1d1d1b; --sub:#6b6a65; --muted:#9a988f;
   --accent:#185FA5; --accent-bg:#E6F1FB; --danger:#A32D2D;
-  --mapbg:#fbfaf8; --land:#efeeea; --rline:rgba(0,0,0,.045); --pline:#d9d7d0; --halo:#fbfaf8;
+  --mapbg:#E3F0F8; --land:#FFFFFF; --rline:rgba(60,80,100,.10); --pline:#CBD7E1; --halo:#FFFFFF; --wish:#D99A00; --wish-fill:transparent;
   --star:#F2A900; --food:#FF6B3D; --cafe:#B07A3B; --sight:#1FA37A;
   --r:12px;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#141413; --surface:#1f1f1d; --line:#2c2c29; --line2:#44443f; --text:#eeede8; --sub:#a9a79f; --muted:#77756e;
-    --accent:#85B7EB; --accent-bg:#0C2A47; --danger:#F09595;
-    --mapbg:#1a1a18; --land:#2a2a27; --rline:rgba(255,255,255,.05); --pline:#3d3d39; --halo:#1a1a18; }
+  :root{ --bg:#141A27; --surface:#1E2636; --line:#2A3345; --line2:#3D4659; --text:#EEF1F7; --sub:#A5ADBD; --muted:#737C8E;
+    --accent:#8FB8F0; --accent-bg:#1D3456; --danger:#F09595;
+    --mapbg:#1B2233; --land:#2C3446; --rline:rgba(255,255,255,.06); --pline:#3D4659; --halo:#1B2233; --wish:#FFD24D; --wish-fill:transparent; }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5}
@@ -126,6 +126,16 @@ header .sp{flex:1}
 .sugg .it small{color:var(--sub);font-size:12px;margin-left:auto;white-space:nowrap}
 .sugg .it i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--line2)}
 .sugg .none{padding:12px 14px;color:var(--muted);font-size:14px}
+#map path.wish{fill:var(--wish-fill);stroke:var(--wish);stroke-width:1.6;stroke-dasharray:5 4;stroke-linejoin:round;vector-effect:non-scaling-stroke;pointer-events:none}
+.bubble .go.wish{border-color:var(--wish);color:var(--wish)}
+.bubble .go.wish.on{background:var(--wish);color:var(--bg)}
+.wishit{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}
+.wishit .info{flex:1;min-width:0;cursor:pointer}
+.wishit .info b{font-weight:500}
+.wishit .info small{display:block;color:var(--sub);font-size:12px}
+.wishit .dot{width:10px;height:10px;border-radius:50%;border:2px dashed var(--wish);flex:none}
+.wishit button{padding:5px 10px;font-size:12px;border-radius:999px;white-space:nowrap}
+.grp{font-size:13px;color:var(--sub);margin:16px 2px 4px;font-weight:500}
 #map path.flash{fill:none;stroke:var(--accent);stroke-width:3.5;vector-effect:non-scaling-stroke;pointer-events:none;animation:flash .6s ease-in-out 4}
 @keyframes flash{0%,100%{opacity:1}50%{opacity:.1}}
 .gauge{position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:7px;padding:5px 11px 5px 6px;border-radius:999px;background:var(--bg);border:1px solid var(--line);cursor:pointer;z-index:2}
@@ -136,7 +146,7 @@ header .sp{flex:1}
 .bubble .t{flex:1;min-width:0}
 .bubble .t b{font-weight:700;font-size:16px}
 .bubble .t small{display:block;font-size:12px;color:var(--sub)}
-.bubble .go{padding:8px 14px;border-radius:999px;font-weight:500;white-space:nowrap}
+.bubble .go{padding:7px 11px;font-size:14px;border-radius:999px;font-weight:500;white-space:nowrap}
 .bubble .go.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 .inline-confirm{display:flex;align-items:center;gap:8px;margin-top:20px;padding:10px 12px;border-radius:12px;background:var(--surface)}
 .inline-confirm span{flex:1;font-size:14px}
@@ -181,7 +191,7 @@ header .sp{flex:1}
 .imgview button{color:#fff;border-color:rgba(255,255,255,.4)}
 .imgview button.primary{color:#141413;background:#fff;border-color:#fff}
 .imgview p{color:#ddd;font-size:13px;margin:0;text-align:center}
-.toast{position:absolute;left:50%;top:10px;transform:translateX(-50%) translateY(-10px);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:14px;opacity:0;transition:all .2s;z-index:50;pointer-events:none;white-space:nowrap}
+.toast{position:absolute;left:50%;top:56px;transform:translateX(-50%) translateY(-10px);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:14px;opacity:0;transition:all .2s;z-index:50;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .mode{font-size:12px;color:var(--muted);text-align:center;padding:4px 16px 20px}
 </style>
@@ -224,6 +234,7 @@ header .sp{flex:1}
   </div>
   <div class="tabs" id="tabs">
     <button data-tab="list" class="on">다녀온 곳</button>
+    <button data-tab="wish" id="wishTab">가고 싶은 곳</button>
     <button data-tab="best">베스트</button>
     <button data-tab="prog">정복률</button>
   </div>
@@ -246,6 +257,9 @@ const CATNAME = Object.fromEntries(CATS);
 const CATVAR = { food: 'var(--food)', cafe: 'var(--cafe)', sight: 'var(--sight)' };
 const CATHEX = { food: '#FF6B3D', cafe: '#B07A3B', sight: '#1FA37A' };
 const PAL = ['#F6B3A8', '#F9CF8E', '#F1DE85', '#B9DE9C', '#94D7C3', '#9CCBEF', '#B5B3F0', '#E3B0E6', '#F5B6CD', '#A6E0E0'];
+const DEEP = ['#E97F6E', '#F0A94B', '#E3C84B', '#86C45A', '#4FBF9B', '#5DA9E6', '#8C88E8', '#C77DD6', '#EA7FA6', '#5CC9C9'];
+const darkMQ = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : { matches: false };
+const shown = hex => { if (!darkMQ.matches) return hex; const i = PAL.indexOf(hex); return i >= 0 ? DEEP[i] : hex; };
 const PROV = Object.fromEntries(MAP.provinces.map(p => [p.id, p]));
 const REG = Object.fromEntries(MAP.regions.map(r => [r.id, r]));
 const METRO = new Set();
@@ -258,7 +272,8 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 let STATE = {};
 const store = { kind: 'none', ready: false };
 function normalize(v) {
-  const o = { visited: !!v.visited || !!(v.visits && v.visits.length), color: typeof v.color === 'string' ? v.color : null, places: [] };
+  const o = { visited: !!v.visited || !!(v.visits && v.visits.length), color: typeof v.color === 'string' ? v.color : null, wish: !!v.wish, places: [], wishes: [] };
+  for (const w of v.wishes || []) o.wishes.push({ id: String(w.id || uid()), cat: CATNAME[w.cat] ? w.cat : 'food', name: String(w.name || ''), memo: String(w.memo || ''), createdAt: +w.createdAt || 0 });
   for (const p of v.places || []) o.places.push({ id: String(p.id || uid()), cat: CATNAME[p.cat] ? p.cat : 'sight', name: String(p.name || ''), menu: String(p.menu || ''), rating: Math.max(0, Math.min(5, Math.round((+p.rating || 0) * 2) / 2)), memo: String(p.memo || ''), createdAt: +p.createdAt || 0 });
   return o;
 }
@@ -304,16 +319,17 @@ function migrate() {
   if (!old.length) return;
   const touched = new Set();
   for (const k of old) {
-    const to = OLDMAP[k] || regionAt(k); const src = STATE[k]; const dst = STATE[to] || (STATE[to] = { visited: false, color: null, places: [] });
+    const to = OLDMAP[k] || regionAt(k); const src = STATE[k]; const dst = STATE[to] || (STATE[to] = { visited: false, color: null, wish: false, places: [], wishes: [] });
     dst.visited = dst.visited || src.visited; dst.color = dst.color || null;
     for (const p of src.places) if (!dst.places.some(q => q.id === p.id)) dst.places.push(p);
+    for (const w of src.wishes || []) if (!dst.wishes.some(q => q.id === w.id)) dst.wishes.push(w); dst.wish = dst.wish || src.wish;
     delete STATE[k]; touched.add(to); persist(k);
   }
   for (const id of touched) persist(id);
 }
 function persist(id) {
   const b = STATE[id];
-  const keep = b && (b.visited || b.places.length || b.color);
+  const keep = b && (b.visited || b.places.length || b.color || b.wish || (b.wishes && b.wishes.length));
   if (!keep) delete STATE[id];
   const body = keep ? JSON.parse(JSON.stringify(b)) : null;
   pending[id] = (pending[id] || 0) + 1;
@@ -325,10 +341,12 @@ function persist(id) {
   });
   return queue[id];
 }
-const rd = id => STATE[id] || (STATE[id] = { visited: false, color: null, places: [] });
-const peek = id => STATE[id] || { visited: false, color: null, places: [] };
+const rd = id => STATE[id] || (STATE[id] = { visited: false, color: null, wish: false, places: [], wishes: [] });
+const peek = id => STATE[id] || { visited: false, color: null, wish: false, places: [], wishes: [] };
+const wished = id => { const s = STATE[id]; return !!s && (s.wish || s.wishes.length > 0); };
 const colored = id => { const s = STATE[id]; return !!s && (s.visited || s.places.length > 0); };
-const colorOf = id => (STATE[id] && STATE[id].color) || PAL[REG[id].ci % PAL.length];
+const baseColor = id => (STATE[id] && STATE[id].color) || PAL[REG[id].ci % PAL.length];
+const colorOf = id => shown(baseColor(id));
 
 /* ---------- ui helpers ---------- */
 let toastT;
@@ -349,7 +367,7 @@ let VB = { x: 0, y: 0, w: MAP.w, h: MAP.h };
 let view = { prov: null, filter: 'region', tab: 'list', bestCat: 'food' };
 let selected = null;
 const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
-const gBase = mk('g', {}, svg), gRegions = mk('g', {}, svg), gProv = mk('g', {}, svg), gHit = mk('g', {}, svg), gLabels = mk('g', {}, svg), gDots = mk('g', {}, svg);
+const gBase = mk('g', {}, svg), gRegions = mk('g', {}, svg), gProv = mk('g', {}, svg), gHit = mk('g', {}, svg), gWish = mk('g', {}, svg), gLabels = mk('g', {}, svg), gDots = mk('g', {}, svg);
 for (const p of MAP.provinces) mk('path', { d: p.d, class: 'base' }, gBase);
 const regionEls = {};
 for (const r of MAP.regions) { const e = mk('path', { d: r.d, class: 'rg' }, gRegions); e.dataset.id = r.id; regionEls[r.id] = e; }
@@ -390,6 +408,8 @@ function updateScale() {
 function paint() {
   for (const r of MAP.regions) { const e = regionEls[r.id]; e.style.fill = colored(r.id) ? colorOf(r.id) : 'transparent';
     e.classList.toggle('dim', !!view.prov && r.prov !== view.prov); e.classList.toggle('sel', r.id === selected); }
+  gWish.innerHTML = '';
+  for (const r of MAP.regions) if (wished(r.id) && !colored(r.id)) { const w = mk('path', { d: r.d, class: 'wish' }, gWish); if (view.prov && r.prov !== view.prov) w.style.opacity = .35; }
   gHit.style.display = view.prov || view.filter !== 'region' ? 'none' : '';
   svg.classList.toggle('dots', view.filter !== 'region');
   drawDots();
@@ -484,7 +504,9 @@ $('#zin').onclick = () => { const r = svg.getBoundingClientRect(); zoomAt(r.left
 $('#zout').onclick = () => { const r = svg.getBoundingClientRect(); zoomAt(r.left + r.width / 2, r.top + r.height / 2, 1.43); };
 window.addEventListener('resize', () => { const b = view.prov ? fitBox(PROV[view.prov].b) : homeBox(); fitW = b.w; setVB(b); });
 
+try { darkMQ.addEventListener('change', () => renderAll()); } catch (e) {}
 /* ---------- tabs ---------- */
+function allWishes() { const out = []; for (const [rid, s] of Object.entries(STATE)) for (const w of s.wishes || []) out.push({ ...w, rid }); return out; }
 function allPlaces() { const out = []; for (const [rid, s] of Object.entries(STATE)) for (const p of s.places || []) out.push({ ...p, rid }); return out; }
 function renderStats() {
   const v = MAP.regions.filter(r => colored(r.id)); const pv = new Set(v.map(r => r.prov)); const n = allPlaces().length;
@@ -492,6 +514,8 @@ function renderStats() {
     $('#gArc').setAttribute('stroke-dasharray', `${(pct / 100 * C).toFixed(2)} ${C.toFixed(2)}`); $('#gArc').style.opacity = pct > 0 ? 1 : 0;
     $('#gPct').textContent = (pct > 0 && pct < 10 ? pct.toFixed(1) : pct >= 10 && pct < 100 ? pct.toFixed(1) : Math.round(pct)) + '%'; }
   $('#stats').textContent = `${v.length}/${MAP.regions.length} 지역 · 시·도 ${pv.size}/17 · 장소 ${n}곳`;
+  const wc = MAP.regions.filter(r => wished(r.id) && !colored(r.id)).length + allWishes().filter(w => colored(w.rid)).length;
+  $('#wishTab').textContent = '가고 싶은 곳' + (wc ? ' ' + wc : '');
 }
 $('#gauge').onclick = () => { view.tab = 'prog'; $('#tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.tab === 'prog')); renderTab(); toast('아래 정복률 탭에서 시·도별로 볼 수 있어요'); };
 $('#tabs').querySelectorAll('button').forEach(b => b.onclick = () => { view.tab = b.dataset.tab; $('#tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); renderTab(); });
@@ -509,6 +533,15 @@ function renderTab() {
     else regs = MAP.regions.filter(r => colored(r.id)).sort((a, b) => a.prov.localeCompare(b.prov) || a.name.localeCompare(b.name, 'ko'));
     B.innerHTML = regs.length ? regs.map(rowHTML).join('') : '<div class="empty">아직 기록이 없어요. 지도에서 다녀온 지역을 눌러 색칠해 보세요.</div>';
     B.querySelectorAll('.row').forEach(el => el.onclick = () => openRegion(el.dataset.id));
+  } else if (view.tab === 'wish') {
+    const regs = MAP.regions.filter(r => (wished(r.id) && !colored(r.id)) || peek(r.id).wishes.length);
+    if (!regs.length) { B.innerHTML = '<div class="empty">아직 가고 싶은 곳이 없어요. 지역을 눌러 말풍선의 \'가고 싶어요\'를 누르거나, 기록 화면에서 가고 싶은 가게를 적어 보세요.</div>'; return; }
+    let h = '';
+    for (const p of MAP.provinces) { const rs = regs.filter(r => r.prov === p.id); if (!rs.length) continue;
+      h += `<div class="grp">${esc(p.name)}</div>`;
+      for (const r of rs) { const ws = peek(r.id).wishes;
+        h += `<div class="row" data-id="${r.id}"><span class="sw" style="background:${colored(r.id) ? colorOf(r.id) : 'transparent'};border:2px dashed var(--wish)"></span><div class="t"><b>${esc(r.name)}</b><small>${ws.length ? ws.map(w => esc(w.name)).join(' · ') : '가고 싶어요'}</small></div><span class="n">${colored(r.id) ? '다녀옴' : ''}</span></div>`; } }
+    B.innerHTML = h; B.querySelectorAll('.row').forEach(el => el.onclick = () => openRegion(el.dataset.id));
   } else if (view.tab === 'best') {
     const list = allPlaces().filter(p => p.cat === view.bestCat).sort((a, b) => b.rating - a.rating || b.createdAt - a.createdAt);
     let rank = 0; list.forEach((p, i) => { if (i === 0 || p.rating !== list[i - 1].rating) rank = i + 1; p.rank = rank; });
@@ -535,8 +568,10 @@ $('#shClose').onclick = () => { if (editing) { editing = null; renderRegionSheet
 function renderBubble() {
   const el = $('#bubble'); const id = sheetRegion; if (!id || view.filter !== 'region') { el.classList.remove('on'); return; }
   const r = REG[id]; const s = peek(id); const on = colored(id); const locked = s.places.length > 0;
-  el.innerHTML = `<span class="sw" style="width:14px;height:14px;border-radius:4px;flex:none;background:${on ? colorOf(id) : 'var(--land)'}"></span><div class="t"><b>${esc(r.name)}</b><small>${locked ? '장소 ' + s.places.length + '곳 기록됨' : esc(PROV[r.prov].short)}</small></div><button class="go ${on ? 'on' : ''}" id="bubGo">${on ? '✓ 다녀왔어요' : '다녀왔어요'}</button>`;
-  $('#bubGo').onclick = () => { if (locked) { toast('장소 기록이 있으면 색칠이 유지돼요'); return; } const st = rd(id); st.visited = !st.visited; persist(id); renderAll(); };
+  const wOn = wished(id) && !on;
+  el.innerHTML = `<span class="sw" style="width:14px;height:14px;border-radius:4px;flex:none;background:${on ? colorOf(id) : 'var(--land)'}"></span><div class="t"><b>${esc(r.name)}</b><small>${locked ? '장소 ' + s.places.length + '곳 기록됨' : esc(PROV[r.prov].short)}</small></div>${on ? '' : `<button class="go wish ${wOn ? 'on' : ''}" id="bubWish">${wOn ? '♥ 가고 싶어요' : '♡ 가고 싶어요'}</button>`}<button class="go ${on ? 'on' : ''}" id="bubGo">${on ? '✓ 다녀왔어요' : '다녀왔어요'}</button>`;
+  $('#bubGo').onclick = () => { if (locked) { toast('장소 기록이 있으면 색칠이 유지돼요'); return; } const st = rd(id); st.visited = !st.visited; if (st.visited) st.wish = false; persist(id); renderAll(); };
+  if (!on) $('#bubWish').onclick = () => { const st = rd(id); if (wOn && st.wishes.length && !st.wish) { toast('가고 싶은 가게가 있어서 표시가 유지돼요'); return; } st.wish = !wOn; persist(id); renderAll(); };
   el.classList.add('on'); $('#pop').classList.remove('on');
 }
 function openRegion(id, pid) {
@@ -556,32 +591,38 @@ function renderRegionSheet() {
     <div class="visit"><span class="sw" style="width:22px;height:22px;border-radius:6px;background:${on ? colorOf(id) : 'var(--land)'}"></span>
       <div class="t"><b>다녀왔어요</b><small>${hasPlaces && !s.visited ? '장소를 기록해서 자동으로 칠해졌어요' : on ? '지도에 색칠돼 있어요' : '켜면 지도에 색칠돼요'}</small></div>
       <button class="sw-toggle ${on ? 'on' : ''} ${hasPlaces ? 'lock' : ''}" id="visitT" aria-label="다녀왔어요"></button></div>
-    ${on ? `<div class="lbl">색</div><div class="palette" id="pal"><button class="auto ${s.color ? '' : 'on'}" data-c="">자동</button>${PAL.map(c => `<button data-c="${c}" class="${s.color === c ? 'on' : ''}" style="background:${c}" aria-label="색 ${c}"></button>`).join('')}</div>` : ''}
+    ${on ? `<div class="lbl">색</div><div class="palette" id="pal"><button class="auto ${s.color ? '' : 'on'}" data-c="">자동</button>${PAL.map(c => `<button data-c="${c}" class="${s.color === c ? 'on' : ''}" style="background:${shown(c)}" aria-label="색 ${c}"></button>`).join('')}</div>` : ''}
     <div class="lbl">장소 <span class="sp"></span><button id="addPlace" style="padding:5px 12px;font-size:13px">+ 장소 추가</button></div>
     <div class="seg" id="catSeg"><button data-cat="all" class="${catFilter === 'all' ? 'on' : ''}">전체 ${s.places.length}</button>${CATS.map(([k, n]) => `<button data-cat="${k}" class="${catFilter === k ? 'on' : ''}">${n} ${cnt(k)}</button>`).join('')}</div>
     <div>${list.map(p => `<div class="place" data-pid="${p.id}"><div class="ic" style="background:${CATVAR[p.cat]}">${catIcon(p.cat)}</div>
       <div class="info"><b>${esc(p.name)}</b><div>${starsHTML(p.rating)}</div>${p.menu ? `<div class="menu">${esc(p.menu)}</div>` : ''}${p.memo ? `<div class="memo">${esc(p.memo)}</div>` : ''}</div></div>`).join('')
-      || `<div class="empty">${catFilter === 'all' ? '맛집, 카페, 관광지를 추가해 보세요' : CATNAME[catFilter] + ' 기록이 없어요'}</div>`}</div>`;
+      || `<div class="empty">${catFilter === 'all' ? '맛집, 카페, 관광지를 추가해 보세요' : CATNAME[catFilter] + ' 기록이 없어요'}</div>`}</div>
+    <div class="lbl">가고 싶은 가게 <span class="sp"></span><button id="addWish" style="padding:5px 12px;font-size:13px">+ 가고 싶은 곳</button></div>
+    <div>${(s.wishes || []).map(w => `<div class="wishit"><span class="dot"></span><div class="info" data-wid="${w.id}"><b>${esc(w.name)}</b><small>${CATNAME[w.cat]}${w.memo ? ' · ' + esc(w.memo) : ''}</small></div><button data-went="${w.id}">다녀왔어요</button></div>`).join('') || '<div class="empty" style="padding:8px 2px">아직 없어요. 가 보고 싶은 가게를 적어 두세요.</div>'}</div>`;
   $('#visitT').onclick = () => {
     if (hasPlaces) { toast('장소 기록이 있으면 색칠이 유지돼요'); return; }
-    const st = rd(id); st.visited = !st.visited; persist(id); renderAll();
+    const st = rd(id); st.visited = !st.visited; if (st.visited) st.wish = false; persist(id); renderAll();
   };
+  $('#addWish').onclick = () => openWishEditor(null);
+  B.querySelectorAll('.wishit .info').forEach(el => el.onclick = () => openWishEditor(el.dataset.wid));
+  B.querySelectorAll('[data-went]').forEach(b => b.onclick = () => { const w = peek(id).wishes.find(x => x.id === b.dataset.went); if (w) openPlaceEditor(null, w); });
   B.querySelectorAll('#pal button').forEach(b => b.onclick = () => { const st = rd(id); st.color = b.dataset.c || null; persist(id); renderAll(); });
   $('#addPlace').onclick = () => openPlaceEditor(null);
   B.querySelectorAll('#catSeg button').forEach(b => b.onclick = () => { catFilter = b.dataset.cat; renderRegionSheet(); });
   B.querySelectorAll('.place').forEach(el => el.onclick = () => openPlaceEditor(el.dataset.pid));
 }
 
-function openPlaceEditor(pid) {
+function openPlaceEditor(pid, fromWish) {
   const id = sheetRegion; const s = peek(id);
   const orig = pid ? s.places.find(p => p.id === pid) : null;
-  const P = orig ? { ...orig } : { id: uid(), cat: catFilter !== 'all' ? catFilter : 'food', name: '', menu: '', rating: 0, memo: '', createdAt: Date.now() };
+  const P = orig ? { ...orig } : fromWish ? { id: fromWish.id, cat: fromWish.cat, name: fromWish.name, menu: '', rating: 0, memo: fromWish.memo, createdAt: Date.now() }
+    : { id: uid(), cat: catFilter !== 'all' ? catFilter : 'food', name: '', menu: '', rating: 0, memo: '', createdAt: Date.now() };
   editing = P.id; const B = $('#shBody');
   const sync = () => { P.name = $('#pname').value.trim(); P.menu = $('#pmenu').value.trim(); P.memo = $('#pmemo').value; };
 
   const draw = () => {
     B.innerHTML = `
-      <div class="lbl">${orig ? '장소 수정' : '새 장소'}</div>
+      <div class="lbl">${orig ? '장소 수정' : fromWish ? '다녀온 곳으로 옮기기 · 별점을 남겨 주세요' : '새 장소'}</div>
       <div class="seg" id="pcat">${CATS.map(([k, n]) => `<button data-cat="${k}" class="${P.cat === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <label class="field"><span>이름</span><input id="pname" maxlength="60" placeholder="해운대 원조할매국밥" value="${esc(P.name)}"></label>
       <label class="field"><span>대표 메뉴</span><input id="pmenu" maxlength="40" placeholder="${P.cat === 'food' ? '수육 백반' : P.cat === 'cafe' ? '아인슈페너' : '일몰 전망대'}" value="${esc(P.menu)}"></label>
@@ -599,12 +640,44 @@ function openPlaceEditor(pid) {
     $('#psave').onclick = () => {
       sync(); if (!P.name) { $('#perr').style.display = 'block'; $('#pname').focus(); return; }
       const st = rd(id); const i = st.places.findIndex(p => p.id === P.id); if (i >= 0) st.places[i] = P; else st.places.push(P);
-      persist(id); editing = null; renderAll(); renderRegionSheet(); toast('저장했어요');
+      if (fromWish) { st.wishes = st.wishes.filter(w => w.id !== fromWish.id); st.wish = false; }
+      persist(id); editing = null; renderAll(); renderRegionSheet(); toast(fromWish ? '다녀온 곳으로 옮겼어요' : '저장했어요');
     };
     if (orig) $('#pdel').onclick = () => {
       const act = B.querySelector('.actions'); act.outerHTML = `<div class="inline-confirm"><span>'${esc(orig.name)}'을(를) 삭제할까요?</span><button class="ghost" id="pdelNo">취소</button><button class="primary" id="pdelYes">삭제</button></div>`;
       $('#pdelNo').onclick = () => { sync(); draw(); };
       $('#pdelYes').onclick = () => { const st = rd(id); st.places = st.places.filter(p => p.id !== P.id); persist(id); editing = null; renderAll(); renderRegionSheet(); toast('삭제했어요'); };
+    };
+  };
+  draw();
+}
+
+function openWishEditor(wid) {
+  const id = sheetRegion; const s = peek(id);
+  const orig = wid ? s.wishes.find(w => w.id === wid) : null;
+  const W = orig ? { ...orig } : { id: uid(), cat: 'food', name: '', memo: '', createdAt: Date.now() };
+  editing = W.id; const B = $('#shBody');
+  const sync = () => { W.name = $('#wname').value.trim(); W.memo = $('#wmemo').value; };
+  const draw = () => {
+    B.innerHTML = `
+      <div class="lbl">${orig ? '가고 싶은 곳 수정' : '가고 싶은 곳 추가'}</div>
+      <div class="seg" id="wcat">${CATS.map(([k, n]) => `<button data-cat="${k}" class="${W.cat === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <label class="field"><span>이름</span><input id="wname" maxlength="60" placeholder="○○횟집" value="${esc(W.name)}"></label>
+      <label class="field"><span>메모</span><textarea id="wmemo" maxlength="1000" placeholder="친구 추천, 물회가 유명하대요">${esc(W.memo)}</textarea></label>
+      <p id="werr" style="color:var(--danger);font-size:13px;margin:8px 0 0;display:none">이름을 입력해 주세요</p>
+      <div class="actions">${orig ? '<button class="danger" id="wdel">삭제</button>' : ''}<span class="sp"></span><button class="ghost" id="wcancel">취소</button><button class="primary" id="wsave">저장</button></div>`;
+    B.querySelectorAll('#wcat button').forEach(b => b.onclick = () => { sync(); W.cat = b.dataset.cat; draw(); });
+    $('#wname').oninput = () => { $('#werr').style.display = 'none'; };
+    $('#wcancel').onclick = () => { editing = null; renderRegionSheet(); };
+    $('#wsave').onclick = () => {
+      sync(); if (!W.name) { $('#werr').style.display = 'block'; $('#wname').focus(); return; }
+      const st = rd(id); const i = st.wishes.findIndex(w => w.id === W.id); if (i >= 0) st.wishes[i] = W; else st.wishes.push(W);
+      persist(id); editing = null; renderAll(); renderRegionSheet(); toast('가고 싶은 곳에 담았어요');
+    };
+    if (orig) $('#wdel').onclick = () => {
+      const act = B.querySelector('.actions'); act.outerHTML = `<div class="inline-confirm"><span>'${esc(orig.name)}'을(를) 지울까요?</span><button class="ghost" id="wdelNo">취소</button><button class="primary" id="wdelYes">지우기</button></div>`;
+      $('#wdelNo').onclick = () => { sync(); draw(); };
+      $('#wdelYes').onclick = () => { const st = rd(id); st.wishes = st.wishes.filter(w => w.id !== W.id); persist(id); editing = null; renderAll(); renderRegionSheet(); toast('지웠어요'); };
     };
   };
   draw();
@@ -621,6 +694,7 @@ function searchItems() {
   for (const p of MAP.provinces) items.push({ kind: 'prov', id: p.id, label: p.name, sub: '시·도', keys: [p.name, p.short] });
   for (const r of MAP.regions) items.push({ kind: 'region', id: r.id, label: r.name, sub: PROV[r.prov].short, keys: [r.name, strip(r.name)], full: [PROV[r.prov].short + r.name, PROV[r.prov].name + r.name] });
   for (const p of allPlaces()) items.push({ kind: 'place', id: p.rid, cat: p.cat, label: p.name, sub: PROV[REG[p.rid].prov].short + ' ' + REG[p.rid].name, keys: [p.name, p.menu].filter(Boolean) });
+  for (const w of allWishes()) items.push({ kind: 'wish', id: w.rid, cat: w.cat, label: w.name, sub: '가고 싶은 곳 · ' + PROV[REG[w.rid].prov].short + ' ' + REG[w.rid].name, keys: [w.name] });
   return items;
 }
 function matchScore(it, q) {
@@ -640,7 +714,7 @@ function renderSugg() {
   suggList = searchItems().map(it => ({ it, sc: matchScore(it, q) })).filter(x => x.sc >= 0)
     .sort((a, b) => b.sc - a.sc || a.it.label.length - b.it.label.length).slice(0, 8).map(x => x.it);
   suggAct = suggList.length ? 0 : -1;
-  box.innerHTML = suggList.length ? suggList.map((it, i) => `<div class="it ${i === suggAct ? 'act' : ''}" data-i="${i}"><i style="${it.kind === 'place' ? 'background:' + CATVAR[it.cat] : it.kind === 'region' && colored(it.id) ? 'background:' + colorOf(it.id) : ''}"></i><b>${esc(it.label)}</b><small>${esc(it.sub)}</small></div>`).join('')
+  box.innerHTML = suggList.length ? suggList.map((it, i) => `<div class="it ${i === suggAct ? 'act' : ''}" data-i="${i}"><i style="${it.kind === 'wish' ? 'background:transparent;border:2px dashed var(--wish)' : it.kind === 'place' ? 'background:' + CATVAR[it.cat] : it.kind === 'region' && colored(it.id) ? 'background:' + colorOf(it.id) : ''}"></i><b>${esc(it.label)}</b><small>${esc(it.sub)}</small></div>`).join('')
     : '<div class="none">찾는 지역이나 장소가 없어요</div>';
   box.querySelectorAll('.it').forEach(el => el.onclick = () => pickSugg(+el.dataset.i));
   box.classList.add('on');
@@ -685,19 +759,21 @@ function plainDownload(name, data, type) {
 /* ---------- map image ---------- */
 let shotBlob = null;
 async function makeShot() {
-  const W = 1080, H = 1440; const dark = false;
+  const W = 1080, H = 1440; const cs = getComputedStyle(document.documentElement); const cv = n => cs.getPropertyValue(n).trim();
+  const BG = cv('--mapbg'), LAND = cv('--land'), PL = cv('--pline'), TX = cv('--text'), SB = cv('--sub'), WI = cv('--wish');
   const v = MAP.regions.filter(r => colored(r.id)).length; const pct = (v / MAP.regions.length * 100).toFixed(1);
   const places = allPlaces().length; const provs = new Set(MAP.regions.filter(r => colored(r.id)).map(r => r.prov)).size;
   const mb = [10, 10, MAP.w - 10, MAP.h - 10]; const scale = Math.min(900 / (mb[2] - mb[0]), 1100 / (mb[3] - mb[1]));
   const tx = (W - (mb[2] - mb[0]) * scale) / 2 - mb[0] * scale, ty = 230 - mb[1] * scale;
-  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#FBFAF8"/>`;
-  s += `<text x="80" y="120" font-family="Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif" font-size="56" font-weight="700" fill="#1d1d1b">나의 여행 지도</text>`;
-  s += `<text x="80" y="178" font-family="Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif" font-size="30" fill="#6b6a65">전국 ${MAP.regions.length}곳 중 ${v}곳 · ${pct}% · 시·도 ${provs}/17 · 장소 ${places}곳</text>`;
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="${BG}"/>`;
+  s += `<text x="80" y="120" font-family="Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif" font-size="56" font-weight="700" fill="${TX}">나의 여행 지도</text>`;
+  s += `<text x="80" y="178" font-family="Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif" font-size="30" fill="${SB}">전국 ${MAP.regions.length}곳 중 ${v}곳 · ${pct}% · 시·도 ${provs}/17 · 장소 ${places}곳</text>`;
   s += `<g transform="translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${scale.toFixed(4)})">`;
-  for (const p of MAP.provinces) s += `<path d="${p.d}" fill="#EFEEEA"/>`;
-  for (const r of MAP.regions) if (colored(r.id)) s += `<path d="${r.d}" fill="${colorOf(r.id)}" stroke="rgba(0,0,0,.05)" stroke-width="0.8"/>`;
-  for (const p of MAP.provinces) s += `<path d="${p.d}" fill="none" stroke="#D9D7D0" stroke-width="1.2"/>`;
-  s += `<rect x="${MAP.ul[0]}" y="${MAP.ul[1]}" width="${MAP.ul[2]}" height="${MAP.ul[3]}" rx="8" fill="none" stroke="#D6D3CB" stroke-dasharray="6 5"/></g></svg>`;
+  for (const p of MAP.provinces) s += `<path d="${p.d}" fill="${LAND}"/>`;
+  for (const r of MAP.regions) if (colored(r.id)) s += `<path d="${r.d}" fill="${colorOf(r.id)}"/>`;
+  for (const p of MAP.provinces) s += `<path d="${p.d}" fill="none" stroke="${PL}" stroke-width="1.2"/>`;
+  for (const r of MAP.regions) if (wished(r.id) && !colored(r.id)) s += `<path d="${r.d}" fill="none" stroke="${WI}" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
+  s += `<rect x="${MAP.ul[0]}" y="${MAP.ul[1]}" width="${MAP.ul[2]}" height="${MAP.ul[3]}" rx="8" fill="none" stroke="${PL}" stroke-dasharray="6 5"/></g></svg>`;
   const url = URL.createObjectURL(new Blob([s], { type: 'image/svg+xml' }));
   const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = url; });
   const c = document.createElement('canvas'); c.width = W; c.height = H; c.getContext('2d').drawImage(img, 0, 0); URL.revokeObjectURL(url);
@@ -737,6 +813,7 @@ $('#importFile').onchange = async e => {
     const tid = REG[rid] ? rid : (MAP.old || {})[rid] || (PROV[rid] ? regionAt(rid) : null); if (!tid) continue; const inc = normalize(raw || {}); const cur = rd(tid);
     cur.visited = cur.visited || inc.visited; cur.color = cur.color || inc.color;
     for (const p of inc.places) if (!cur.places.some(q => q.id === p.id)) cur.places.push(p);
+    cur.wish = cur.wish || inc.wish; for (const w of inc.wishes) if (!cur.wishes.some(q => q.id === w.id)) cur.wishes.push(w);
     await persist(tid); n++;
   }
   renderAll(); toast(`기록 ${n}건을 불러왔어요`);
